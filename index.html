@@ -5,70 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AntBuster - Tower Defense Game</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary-green: #2d5a3d;
+            --secondary-green: #1a2e23;
+            --accent-green: #4a7c4a;
+            --light-green: #8fbc8f;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #b0b0b0;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --shadow-heavy: rgba(0, 0, 0, 0.4);
+            --border-radius: 8px;
+            --border-radius-large: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             margin: 0;
-            padding: 0;
-            background-color: #2d4a3e;
-            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            color: var(--text-primary);
         }
         
         #gameContainer {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-large);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px var(--shadow-heavy);
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #ffeb3b, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px var(--shadow-medium);
         }
         
         #gameCanvas {
-            border: 3px solid #1a2e23;
-            background-color: #8fbc8f;
+            border: 3px solid var(--accent-green);
+            border-radius: var(--border-radius);
+            background-color: var(--light-green);
             cursor: crosshair;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+            transition: transform 0.2s ease;
+        }
+        
+        #gameCanvas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--shadow-heavy);
         }
         
         #ui {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             width: 800px;
-            background-color: #1a2e23;
-            padding: 10px;
-            border-radius: 5px;
-            color: white;
+            background: linear-gradient(135deg, var(--secondary-green), var(--primary-green));
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px var(--shadow-medium);
+            backdrop-filter: blur(10px);
         }
         
         .tower-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
         }
         
         .tower-btn {
-            padding: 8px 12px;
+            padding: 12px 18px;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tower-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
         
         .tower-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow-medium);
+        }
+        
+        .tower-btn:hover::before {
+            left: 100%;
+        }
+        
+        .tower-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px var(--shadow-light);
         }
         
         .tower-btn.selected {
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 2px #ffeb3b, 0 4px 16px var(--shadow-medium);
+            animation: pulse 2s infinite;
         }
         
-        .cannon { background-color: #8b4513; color: white; }
-        .machine-gun { background-color: #696969; color: white; }
-        .heavy-cannon { background-color: #2f4f4f; color: white; }
-        .splash { background-color: #b22222; color: white; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 2px #ffeb3b, 0 4px 16px var(--shadow-medium); }
+            50% { box-shadow: 0 0 0 4px rgba(255, 235, 59, 0.5), 0 4px 16px var(--shadow-medium); }
+        }
+        
+        #cancelBtn {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            animation: none !important;
+        }
+        
+        #cancelBtn:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130) !important;
+        }
         
         .stats {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             align-items: center;
         }
         
@@ -76,45 +166,125 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 70px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
         }
         
         .stat-value {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
         }
         
         .stat-label {
-            font-size: 12px;
-            color: #ccc;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        
+        #money .stat-value { color: #4caf50; }
+        #score .stat-value { color: #ff9800; }
+        #cakeHealth .stat-value { color: #e91e63; }
+        #wave .stat-value { color: #2196f3; }
         
         #gameOver {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 46, 35, 0.95));
+            color: var(--text-primary);
+            padding: 40px;
+            border-radius: var(--border-radius-large);
             text-align: center;
             display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 64px var(--shadow-heavy);
+            backdrop-filter: blur(20px);
+            max-width: 90vw;
+        }
+        
+        #gameOver h2 {
+            margin: 0 0 16px 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+        
+        #gameOver p {
+            margin: 0 0 24px 0;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
         
         #restartBtn {
-            padding: 10px 20px;
-            margin-top: 10px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
+            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: var(--text-primary);
             cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        #restartBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        #restartBtn:active {
+            transform: translateY(0);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 900px) {
+            body { padding: 10px; }
+            #gameContainer { padding: 15px; }
+            #ui { width: 100%; max-width: 800px; padding: 12px 16px; }
+            .stats { gap: 16px; }
+            h1 { font-size: 2rem; }
+        }
+        
+        /* Keyboard shortcuts hint */
+        .shortcuts-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .shortcuts-hint:hover {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
+        <h1>🐜 AntBuster 🍰</h1>
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         <div id="ui">
             <div class="tower-buttons">
@@ -145,8 +315,19 @@
             <p id="gameOverMessage">The ants stole all your cake!</p>
             <button id="restartBtn">Play Again</button>
         </div>
+        
+        <div class="shortcuts-hint">
+            Press SPACE to pause • 1-4 for towers • ESC to cancel • Click towers to upgrade/move/sell
+        </div>
     </div>
     
-    <script src="game.js"></script>
+    <script type="module">
+        import { Game } from './src/core/Game.js';
+        
+        // Start the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.game = new Game();
+        });
+    </script>
 </body>
 </html>
